@@ -1,0 +1,33 @@
+userName: YOUR_USERNAME
+accessKey: YOUR_ACCESS_KEY
+
+platforms:
+  - os: Windows
+    osVersion: 11
+    browserName: Chrome
+    browserVersion: latest
+  - os: OS X
+    osVersion: Sonoma
+    browserName: Safari
+    browserVersion: latest
+  - os: Windows
+    osVersion: 10
+    browserName: Firefox
+    browserVersion: latest
+  - deviceName: iPhone 15
+    osVersion: "17"
+    browserName: Safari
+    deviceOrientation: portrait
+  - deviceName: Samsung Galaxy S24
+    osVersion: "14.0"
+    browserName: Chrome
+    deviceOrientation: portrait
+
+browserstackLocal: false
+buildName: BrowserStack CE Assignment
+projectName: El Pais Scraper Pipeline
+
+debug: true
+networkLogs: true
+consoleLogs: info
+framework: python
