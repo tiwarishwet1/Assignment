@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables & Secrets
+.env
+
+# Output artifacts & downloaded media (Keep folder structure via .gitkeep)
+output/images/*
+!output/images/.gitkeep
+output/*.log
+output/*.txt
+output/*.json
+
+# IDEs & Editors
+.vscode/
+.idea/
+
+# Testing framework caches
+.pytest_cache/
