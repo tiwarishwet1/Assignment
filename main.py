@@ -13,26 +13,23 @@ def run():
     logger.info("🚀 Launching El País Scraping Pipeline...")
     driver = None
     try:
-        # 1. Driver Factory (Managed by SDK or Local Selenium)
         driver = DriverFactory.create_driver()
 
-        # 2. Inject Concrete Services into Pipeline
         scraper = ElPaisScraper(driver)
         translator = DeepTranslatorService()
         analyzer = WordFrequencyAnalyzer()
         pipeline = ArticlePipeline(scraper, translator, analyzer)
 
-        # 3. Execute Scrape -> Translate -> Analyze Pipeline
         articles, repeated_words = pipeline.execute(
             section_name=settings.TARGET_SECTION,
             limit=settings.SCRAPE_LIMIT
         )
 
-        # 4. Generate Reports
         ReportGenerator.generate_json_report(
             articles, repeated_words, session_name="BrowserStack_SDK_Run"
         )
         ReportGenerator.generate_text_summary(articles, repeated_words)
+        ReportGenerator.generate_html_report(articles, repeated_words)
 
         logger.info("✅ Execution completed successfully!")
 

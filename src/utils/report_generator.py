@@ -74,3 +74,70 @@ class ReportGenerator:
 
         logger.info(f"Summary Report exported to: {filepath}")
         return summary_content
+
+    @staticmethod
+    def generate_html_report(
+        articles: List[Article], repeated_words: Dict[str, int]
+    ) -> str:
+        """Generates an executive visual HTML report."""
+        os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
+        filepath = os.path.join(settings.OUTPUT_DIR, "report.html")
+
+        cards_html = ""
+        for art in articles:
+            cards_html += f"""
+            <div style="border:1px solid #e0e0e0; border-radius:8px;
+                        padding:16px; margin-bottom:16px;
+                        font-family:sans-serif; background:#ffffff;">
+                <h3 style="color:#1a365d; margin-top:0;">
+                    Article #{art.index}
+                </h3>
+                <p><strong>🇪🇸 Title (ES):</strong> {art.title_es}</p>
+                <p><strong>🇬🇧 Title (EN):</strong> {art.title_en}</p>
+                <p><strong>📝 Content:</strong> {art.content_es}</p>
+                <p><strong>🖼️ Cover Image Path:</strong>
+                   <code>{art.local_image_path}</code></p>
+            </div>
+            """
+
+        badge_style = (
+            "background:#e2e8f0; color:#0f172a; padding:6px 14px; "
+            "border-radius:16px; font-weight:bold; margin-right:8px; "
+            "display:inline-block;"
+        )
+        msg_no_words = (
+            "<span style='color:#64748b;'>"
+            "No words repeated > 2 times.</span>"
+        )
+        word_badges = "".join([
+            f'<span style="{badge_style}">{w}: {c}</span>'
+            for w, c in repeated_words.items()
+        ]) or msg_no_words
+
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>El País Automation Telemetry Report</title>
+            <meta charset="utf-8">
+        </head>
+        <body style="font-family:sans-serif; background:#f8fafc;
+                     max-width:850px; margin:40px auto; padding:0 20px;">
+            <h1 style="color:#0f172a;">
+                📰 El País Extraction & Analysis Telemetry
+            </h1>
+            <hr style="border:0; height:1px; background:#cbd5e1;
+                       margin-bottom:24px;">
+            <h2>📊 Repeated Words Analysis (Count > 2)</h2>
+            <div style="margin-bottom:32px;">{word_badges}</div>
+            <h2>📑 Scraped Articles ({len(articles)})</h2>
+            {cards_html}
+        </body>
+        </html>
+        """
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(html_content)
+
+        logger.info(f"HTML Visual Report exported to: {filepath}")
+        return filepath

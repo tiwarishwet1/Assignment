@@ -16,10 +16,9 @@ class DriverFactory:
         options = webdriver.ChromeOptions()
         driver = webdriver.Chrome(options=options)
 
-        # Safely maximize window (ignored on mobile viewports/Android/iOS)
         try:
             driver.maximize_window()
         except Exception:
-            logger.debug("Window maximize skipped (Mobile Viewport detected).")
+            logger.debug("Window maximize skipped (Mobile Viewport).")
 
         return driver

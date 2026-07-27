@@ -22,17 +22,15 @@ class ElPaisScraper(BaseScraper):
         logger.info(f"Navigating to El País section: {target_url}")
         self.driver.get(target_url)
 
-        # 1. Handle Cookie Consent First
         self._handle_cookie_consent()
         self._verify_spanish_language()
 
-        # 2. Wait up to 20 seconds for <article> elements (Mobile-resilient)
         try:
             WebDriverWait(self.driver, 20).until(
                 EC.presence_of_all_elements_located((By.TAG_NAME, "article"))
             )
         except TimeoutException:
-            logger.warning("Article tags took longer than expected; attempting DOM fallback...")
+            logger.warning("Article tags timeout; using available DOM...")
 
         article_elements = self.driver.find_elements(
             By.TAG_NAME, "article"
@@ -82,23 +80,49 @@ class ElPaisScraper(BaseScraper):
             logger.warning("Could not find <html> lang attribute.")
 
     def _extract_title(self, elem) -> str:
-        try:
-            return elem.find_element(By.XPATH, ".//h2 | .//h3").text.strip()
-        except Exception:
-            return "Title Unavailable"
+        """Robust title extraction trying multiple XPath fallbacks."""
+        title_xpaths = [
+            ".//h2/a",
+            ".//h3/a",
+            ".//h2",
+            ".//h3",
+            ".//header//a",
+            ".//a[contains(@class, 'c_t')]"
+        ]
+        for xpath in title_xpaths:
+            try:
+                text = elem.find_element(By.XPATH, xpath).text.strip()
+                if text:
+                    return text
+            except Exception:
+                continue
+        return "Title Unavailable"
 
     def _extract_content(self, elem) -> str:
-        try:
-            return elem.find_element(By.XPATH, ".//p").text.strip()
-        except Exception:
-            return "Content Snippet Unavailable"
+        """Robust content extraction trying multiple XPath fallbacks."""
+        content_xpaths = [
+            ".//p[contains(@class, 'c_d')]",
+            ".//p",
+            ".//div[contains(@class, 'c_d')]",
+            ".//p[contains(@class, 'description')]"
+        ]
+        for xpath in content_xpaths:
+            try:
+                text = elem.find_element(By.XPATH, xpath).text.strip()
+                if text:
+                    return text
+            except Exception:
+                continue
+        return "Content Snippet Unavailable"
 
     def _download_cover_image(self, elem, index: int) -> str:
         try:
             try:
-                self.driver.execute_script(
-                    "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", elem
+                js_scroll = (
+                    "arguments[0].scrollIntoView("
+                    "{block: 'center', inline: 'nearest'});"
                 )
+                self.driver.execute_script(js_scroll, elem)
             except Exception:
                 pass
 
